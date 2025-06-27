@@ -14,6 +14,15 @@ public class ExceptionMiddleware
             await _next(context);
         }
      
+        catch (ArgumentNullException ex)
+        {
+            var errors = new Dictionary<string, string[]>
+            {
+                { "argumentNull", new[] { ex.Message } }
+            };
+            await HandleExceptionAsync(context, StatusCodes.Status400BadRequest, "Invalid argument", errors);
+        }
+        
         catch (NotFoundException ex)
         {
             var errors = new Dictionary<string, string[]>

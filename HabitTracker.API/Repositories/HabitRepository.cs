@@ -2,6 +2,7 @@ using HabitTacker.Repositories;
 using HabitTacker.Contexts;
 using HabitTacker.Models;
 using Microsoft.EntityFrameworkCore;
+namespace HabitTacker.Repositories;
 
 public class HabitRepository : Repository<Guid, Habit>, IHabitRepository
 {
@@ -58,7 +59,7 @@ public class HabitRepository : Repository<Guid, Habit>, IHabitRepository
 
         int streak = 0;
         DateTime CurrentDate = DateTime.Today;
-        
+
         foreach (var completion in completions)
         {
             if (completion.DateCompleted.Date == CurrentDate.Date)
@@ -72,5 +73,18 @@ public class HabitRepository : Repository<Guid, Habit>, IHabitRepository
             }
         }
         return streak;
+    }
+    
+    public async Task<Habit> GetByIdAsync(Guid habitId)
+    {
+        var habit = await _dbSet.Include(h => h.Completions)
+            .FirstOrDefaultAsync(h => h.Id == habitId);
+
+        if (habit == null)
+        {
+            throw new NotFoundException($"Habit with ID '{habitId}' not found.");
+        }
+
+        return habit;
     }
 }
