@@ -1,6 +1,7 @@
 namespace HabitTacker.Contexts;
 using HabitTacker.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 public class HabitTrackerContext : DbContext
 {
@@ -25,5 +26,16 @@ public class HabitTrackerContext : DbContext
             .WithMany(h => h.Completions)
             .HasForeignKey(c => c.HabitId)
             .OnDelete(DeleteBehavior.Cascade);
+
+         var frequencyConverter = new ValueConverter<HabitFrequency, string>(
+            v => v.ToString(),
+            v => (HabitFrequency)Enum.Parse(typeof(HabitFrequency), v)
+        );
+
+        modelBuilder.Entity<Habit>()
+            .Property(h => h.Frequency)
+            .HasConversion(frequencyConverter);
+
+        base.OnModelCreating(modelBuilder);
     }
 }

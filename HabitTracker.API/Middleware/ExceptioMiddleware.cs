@@ -22,7 +22,7 @@ public class ExceptionMiddleware
             };
             await HandleExceptionAsync(context, StatusCodes.Status400BadRequest, "Invalid argument", errors);
         }
-        
+
         catch (NotFoundException ex)
         {
             var errors = new Dictionary<string, string[]>
@@ -44,9 +44,9 @@ public class ExceptionMiddleware
         {
             await HandleExceptionAsync(context, StatusCodes.Status400BadRequest, ex.Message);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            await HandleExceptionAsync(context, StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            await HandleExceptionAsync(context, StatusCodes.Status500InternalServerError, "An unexpected error occurred.", new { error = ex.Message });
         }
     }
 

@@ -1,6 +1,6 @@
 public enum HabitFrequency
 {
-    Daily,
-    Weekly,
-    Custom
+    Daily = 0,
+    Weekly = 1,
+    Monthly = 2
 }

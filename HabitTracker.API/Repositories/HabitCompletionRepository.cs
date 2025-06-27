@@ -27,7 +27,7 @@ public class HabitCompletionRepository : IHabitCompletionRepository
     public Task<bool> RemoveAsync(Guid habitCompletionId, DateTime date)
     {
         var habitCompletion = _habitTrackerContext.HabitCompletions
-            .FirstOrDefault(hc => hc.Id == habitCompletionId && hc.DateCompleted.Date == date.Date);
+            .FirstOrDefault(hc => hc.HabitId == habitCompletionId && hc.DateCompleted.Date == date.Date);
         
         if (habitCompletion != null)
         {
