@@ -1,0 +1,67 @@
+<form [formGroup]="habitForm" (ngSubmit)="onSubmit()" class="space-y-4 p-4">
+  <div>
+    <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+    <input formControlName="title" type="text" class="form-input" />
+    @if (habitForm.get('title')?.touched && habitForm.get('title')?.invalid) {
+    <div class="error-msg">Title is required and max 50 characters.</div>
+    }
+  </div>
+  <div>
+    <label class="block text-sm font-medium text-gray-700 mb-1"
+      >Frequency</label
+    >
+    <select formControlName="frequency" class="form-input">
+      <option value="daily">Daily</option>
+      <option value="weekly">Weekly</option>
+      <option value="custom">Custom</option>
+    </select>
+  </div>
+  @if (habitForm.get('frequency')?.value === 'custom') {
+  <div>
+    <label class="block text-sm font-medium text-gray-700 mb-1"
+      >Custom Frequency (days)</label
+    >
+    <input
+      formControlName="customFrequency"
+      type="number"
+      min="1"
+      class="form-input"
+    />
+    @if (habitForm.get('customFrequency')?.touched &&
+    habitForm.get('customFrequency')?.invalid) {
+    <div class="error-msg">
+      Custom frequency is required and must be at least 1.
+    </div>
+    }
+  </div>
+  }
+  <div>
+    <label class="block text-sm font-medium text-gray-700 mb-1"
+      >Description</label
+    >
+    <textarea
+      formControlName="description"
+      rows="3"
+      class="form-input"
+    ></textarea>
+    @if (habitForm.get('description')?.touched &&
+    habitForm.get('description')?.invalid) {
+    <div class="error-msg">Max 200 characters.</div>
+    }
+  </div>
+  <div>
+    <label class="block text-sm font-medium text-gray-700 mb-1"
+      >Start Date</label
+    >
+    <input formControlName="startDate" type="date" class="form-input" />
+    @if (habitForm.get('startDate')?.touched &&
+    habitForm.get('startDate')?.invalid) {
+    <div class="error-msg">Start date is required.</div>
+    }
+  </div>
+  <div class="mt-6 flex justify-end">
+    <button type="submit" class="btn-primary" [disabled]="habitForm.invalid">
+      Save Habit
+    </button>
+  </div>
+</form>

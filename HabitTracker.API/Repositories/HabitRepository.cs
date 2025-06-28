@@ -25,7 +25,10 @@ public class HabitRepository : Repository<Guid, Habit>, IHabitRepository
 
     public async Task<double> GetCompletionPercentageForDateAsync(Guid userId, DateTime date)
     {
-        var habits = await GetHabitsByUserIdAsync(userId);
+        var habits = await _dbSet
+            .Where(h => h.UserId == userId && h.StartDate.Date <= date.Date)
+            .ToListAsync();
+
         if (!habits.Any())
             return 0;
 
@@ -44,7 +47,7 @@ public class HabitRepository : Repository<Guid, Habit>, IHabitRepository
             }
         }
 
-        return completedCount / total * 100;
+        return (double)completedCount / total * 100;
     }
 
     public async Task<int> GetStreakCountAsync(Guid habitId)

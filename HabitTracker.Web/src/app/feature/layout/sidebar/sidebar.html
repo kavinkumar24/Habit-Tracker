@@ -1,0 +1,39 @@
+<button
+  class="md:hidden fixed top-4 left-4 z-50 text-violet-600 p-2 rounded-full"
+  (click)="sidebarOpen = !sidebarOpen"
+>
+  <lucide-angular [img]="menuIcon"></lucide-angular>
+</button>
+
+<aside
+  class="fixed z-40 top-0 left-0 h-screen w-60 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
+         md:relative md:translate-x-0"
+  [ngClass]="{ '-translate-x-full': !sidebarOpen, 'translate-x-0': sidebarOpen }"
+>
+  <div class="flex flex-col items-center py-10">
+    <div class="w-16 h-16 rounded-full bg-violet-600 flex items-center justify-center text-white text-3xl font-bold mb-4 shadow">
+      {{ userInitial }}
+    </div>
+    <div class="text-lg font-semibold mb-8 text-gray-800">{{ userName }}</div>
+    <nav class="flex flex-col gap-2 w-full px-6">
+      <a
+        routerLink="/user/dashboard"
+        class="flex items-center gap-2 text-violet-700 font-medium hover:bg-violet-50 rounded px-3 py-2 transition"
+      >
+        <span class="material-icons">
+          <lucide-angular [img]="homeIcon"></lucide-angular>
+        </span>
+        Home
+      </a>
+      <button
+        (click)="logout()"
+        class="flex items-center gap-2 text-red-500 font-medium hover:bg-red-50 rounded px-3 py-2 transition"
+      >
+        <span class="material-icons">
+          <lucide-angular [img]="logoutIcon"></lucide-angular>
+        </span>
+        Logout
+      </button>
+    </nav>
+  </div>
+</aside>

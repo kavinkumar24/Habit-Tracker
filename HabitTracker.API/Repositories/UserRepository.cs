@@ -26,7 +26,7 @@ public class UserRepository : Repository<Guid, User>, IUserRepository
     public async Task<User?> GetWithHabitsAsync(Guid userId)
     {
         var user = await _habitTrackerContext.Users
-            .Include(u => (IEnumerable<Habit>)u.Habits!)
+            .Include(u => u.Habits)
             .ThenInclude(h => h.Completions)
             .FirstOrDefaultAsync(u => u.Id == userId);
         return user;

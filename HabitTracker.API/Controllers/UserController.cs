@@ -42,6 +42,33 @@ public class UserController : ControllerBase
         return Ok(ApiResponse<User>.SuccessResponse(createdUser, "User registered successfully."));
     }
 
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
+    {
+        if (loginDto == null || (string.IsNullOrEmpty(loginDto.UsernameOrEmail) || string.IsNullOrEmpty(loginDto.Password)))
+        {
+            return BadRequest(ApiResponse<string>.ErrorResponse("Username/email and password are required."));
+        }
+
+        User? user;
+        if (loginDto.UsernameOrEmail.Contains("@"))
+        {
+            user = await _userService.GetUserByEmailAsync(loginDto.UsernameOrEmail);
+        }
+        else
+        {
+            user = await _userService.GetUserByUsernameAsync(loginDto.UsernameOrEmail);
+        }
+
+        if (user == null || user.Password != loginDto.Password)
+        {
+            return Unauthorized(ApiResponse<string>.ErrorResponse("Invalid credentials."));
+        }
+
+        return Ok(ApiResponse<User>.SuccessResponse(user, "Login successful."));
+    }
+
+
     [HttpGet("{userId}")]
     public async Task<IActionResult> GetUserById(Guid userId)
     {
@@ -100,4 +127,6 @@ public class UserController : ControllerBase
         }
         return Ok(ApiResponse<User>.SuccessResponse(user, "User with habits retrieved successfully."));
     }
+
+    
 }

@@ -1,0 +1,41 @@
+<div class="flex w-full h-full gap-4">
+  <div class="relative overflow-hidden rounded-2xl w-full h-full">
+    <div
+      class="flex transition-transform duration-700 ease-in-out h-full"
+      [style.transform]="'translateX(-' + currentSlide * 100 + '%)'"
+    >
+      @for (card of slides; track card.title) {
+        <div
+          class="min-w-full flex-shrink-0 bg-pink-200 flex justify-between items-center p-6 h-full"
+        >
+          <div class="max-w-md">
+            <h2 class="text-2xl font-bold text-gray-800">{{ card.title }}</h2>
+            <p class="text-gray-700 mt-2">{{ card.description }}</p>
+            <button class="mt-4 px-4 py-2 bg-white rounded-full shadow text-gray-800 font-medium">
+              {{ card.button }}
+            </button>
+          </div>
+          <div class="hidden md:flex flex-1 items-center justify-center bg-pink-200">
+            <img
+              [src]="card.image"
+              alt="Login Illustration"
+              class="object-contain max-w-xs max-h-48 rounded-lg"
+            />
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+      @for (slide of slides; track slide.title; let i = $index) {
+        <div
+          class="w-3 h-3 rounded-full transition-all duration-300"
+          [ngClass]="{
+            'bg-white': currentSlide === i,
+            'bg-white/50': currentSlide !== i
+          }"
+        ></div>
+      }
+    </div>
+  </div>
+</div>

@@ -4,6 +4,7 @@ using HabitTacker.Interfaces.Repositories;
 using HabitTacker.Models.DTO;
 using HabitTracker.API.Models.DTO;
 using HabitTracker.Interfaces.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HabitTacker.Services;
 
@@ -82,14 +83,20 @@ public class HabitService : IHabitService
         return _habitRepository.GetCompletionPercentageForDateAsync(userId, date);
     }
 
-    public Task<Habit> GetHabitByIdAsync(Guid habitId)
+    public async Task<HabitResponseDto?> GetHabitByIdAsync(Guid habitId)
     {
         if (habitId == Guid.Empty)
         {
             throw new ArgumentNullException(nameof(habitId), "Habit ID cannot be empty");
         }
 
-        return _habitRepository.GetByIdAsync(habitId);
+        var habit = await _habitRepository.GetByIdAsync(habitId);
+        if (habit == null)
+        {
+            return null;
+        }
+
+        return _mapper.Map<HabitResponseDto>(habit);
     }
 
     public async Task<IEnumerable<HabitResponseDto>> GetHabitsByUserIdAsync(Guid userId)

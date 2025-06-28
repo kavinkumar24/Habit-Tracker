@@ -59,7 +59,7 @@ public class HabitController : ControllerBase
         {
             return NotFound(ApiResponse<string>.ErrorResponse("Habit not found."));
         }
-        return Ok(ApiResponse<Habit>.SuccessResponse(habit, "Habit retrieved successfully."));
+        return Ok(ApiResponse<HabitResponseDto>.SuccessResponse(habit, "Habit retrieved successfully."));
     }
 
     [HttpPut("{habitId}")]

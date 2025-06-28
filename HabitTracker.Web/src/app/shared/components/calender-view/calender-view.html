@@ -1,0 +1,36 @@
+<div class="flex justify-center items-center mb-2">
+  <span class="text-lg font-semibold text-gray-800">{{ monthName }} {{ year }}</span>
+</div>
+<div class="w-full overflow-x-auto">
+  <table class="w-full text-center table-fixed">
+    <thead>
+      <tr class="text-sm text-gray-500">
+        @for (day of ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']; track day) {
+          <th>{{ day }}</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+  @for (week of weeks; track weeks.indexOf(week)) {
+  <tr>
+    @for (day of week; track $index) {
+      <td class="h-10">
+        @if (day) {
+          <div
+            class="w-8 h-8 mx-auto flex items-center justify-center rounded-full"
+            [ngClass]="{
+              'bg-green-500 text-white': day.completed,
+              'bg-orange-400 text-white': !day.completed && day.streak,
+              'bg-gray-300 text-gray-600': !day.completed && !day.streak
+            }"
+          >
+            {{ day.day }}
+          </div>
+        }
+      </td>
+    }
+  </tr>
+}
+</tbody>
+  </table>
+</div>

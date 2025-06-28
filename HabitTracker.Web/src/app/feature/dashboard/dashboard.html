@@ -1,0 +1,201 @@
+<div
+  class="dashboard-main bg-gray-100 min-h-screen px-4 md:px-8 py-8 rounded-2xl space-y-8"
+>
+  <div
+    class="flex flex-col md:flex-row md:items-center md:justify-between gap-6"
+  >
+    <div class="flex items-center gap-4">
+      <button
+        (click)="showCreateForm = !showCreateForm"
+        class="px-6 py-2 bg-violet-600 text-white rounded-full font-semibold shadow hover:bg-violet-700 transition"
+      >
+        @if (showCreateForm) { Cancel } @else { + Create Habit }
+      </button>
+      <span class="text-xl font-bold text-gray-700 hidden md:inline"
+        >Hey, Habit Tracker here</span
+      >
+    </div>
+    <div class="flex items-center gap-6">
+      <div class="relative">
+        <svg class="w-20 h-20 transform -rotate-90" viewBox="0 0 100 100">
+          <circle
+            class="text-gray-200"
+            stroke-width="10"
+            stroke="currentColor"
+            fill="transparent"
+            r="45"
+            cx="50"
+            cy="50"
+          />
+          <circle
+            class="text-violet-600 transition-all duration-700"
+            stroke-width="10"
+            [attr.stroke-dasharray]="282.743"
+            [attr.stroke-dashoffset]="282.743 - (completedPercent / 100) * 282.743"
+            stroke-linecap="round"
+            stroke="currentColor"
+            fill="transparent"
+            r="45"
+            cx="50"
+            cy="50"
+          />
+        </svg>
+        <div class="absolute inset-0 flex items-center justify-center">
+          <span class="text-lg font-bold text-violet-600"
+            >{{ completedPercent }}%</span
+          >
+        </div>
+      </div>
+      <div class="flex gap-4">
+        <div
+          class="bg-white p-4 rounded-xl shadow flex flex-col items-center min-w-[90px]"
+        >
+          <div class="text-gray-500 text-xs">Total Habits</div>
+          <div class="text-lg font-bold text-gray-800">
+            {{ summary.totalHabits }}
+          </div>
+        </div>
+        <div
+          class="bg-white p-4 rounded-xl shadow flex flex-col items-center min-w-[90px]"
+        >
+          <div class="text-gray-500 text-xs">Streaks</div>
+          <div class="text-lg font-bold text-gray-800">
+            {{ summary.activeStreaks }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <app-model-view [show]="showCreateForm" (close)="showCreateForm = false">
+    <app-add-habit (habitCreated)="addHabit($event)"></app-add-habit>
+  </app-model-view>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-white p-6 rounded-xl shadow max-h-[42rem] overflow-y-auto">
+      <div class="flex space-x-4 mb-6 border-b border-gray-200 overflow-x-auto">
+        <button
+          (click)="selectedCategory = 'daily'"
+          [ngClass]="selectedCategory === 'daily' ? 'border-indigo-600 text-indigo-600' : 'text-gray-600'"
+          class="pb-2 border-b-2 font-semibold whitespace-nowrap"
+        >
+          Daily
+        </button>
+        <button
+          (click)="selectedCategory = 'weekly'"
+          [ngClass]="selectedCategory === 'weekly' ? 'border-indigo-600 text-indigo-600' : 'text-gray-600'"
+          class="pb-2 border-b-2 font-semibold whitespace-nowrap"
+        >
+          Weekly
+        </button>
+      </div>
+      @if (filteredHabits.length === 0) {
+      <div class="text-center text-gray-500 py-8 text-lg">No habit found.</div>
+      } @for (habit of filteredHabits; track habit.id) {
+      <div
+        class="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-gray-200 py-3 gap-4"
+        (click)="!isFutureHabit(habit) && selectHabit(habit)"
+        [ngClass]="selectedHabit?.id === habit.id ? 'bg-violet-100' : ''"
+      >
+        <div class="flex items-start sm:items-center space-x-4 w-full">
+          <span
+            class="ml-2 px-4 py-2 rounded text-xs font-semibold flex items-center gap-1"
+            [ngClass]="habit.streakCount > 0 ? 'bg-amber-300 text-orange-700' : 'bg-gray-300 text-gray-600'"
+          >
+            <img
+              [ngSrc]="'assets/images/fire.webp'"
+              width="16"
+              height="16"
+              alt="Streak"
+              class="inline-block"
+              style="vertical-align: middle"
+            />
+            {{ habit.streakCount || 0 }}
+          </span>
+          <button
+            (click)="toggleComplete(habit)"
+            [disabled]="isFutureHabit(habit)"
+            class="w-8 h-8 flex items-center justify-center rounded-full border-2 transition-colors duration-300 focus:outline-none flex-shrink-0"
+            [ngClass]="[
+          isCompletedToday(habit) ? 'bg-violet-600 border-violet-600 text-white' : 'bg-white border-gray-400 text-gray-400',
+          isFutureHabit(habit) ? 'opacity-50 cursor-not-allowed' : ''
+        ]"
+            aria-label="Toggle habit completion"
+            [attr.aria-pressed]="isCompletedToday(habit)"
+          >
+            @if (isCompletedToday(habit)) {
+            <lucide-angular
+              [img]="checkIcon"
+              class="w-5 h-5"
+              style="color: white"
+            ></lucide-angular>
+            } @else {
+            <lucide-angular
+              [img]="circleIcon"
+              class="w-5 h-5"
+              style="color: #a3a3a3"
+            ></lucide-angular>
+            }
+          </button>
+          <div class="w-full">
+            <div
+              [ngClass]="isCompletedToday(habit) ? 'line-through text-gray-400' : 'text-gray-800 font-medium'"
+            >
+              {{ habit.title }}
+            </div>
+            <p
+              [ngClass]="isCompletedToday(habit) ? 'line-through text-gray-400' : 'text-gray-700'"
+              class="text-sm"
+            >
+              {{ habit.description }}
+            </p>
+            <p
+              [ngClass]="isCompletedToday(habit) ? 'line-through text-gray-400' : 'text-gray-600'"
+              class="text-xs mt-1"
+            >
+              {{ habit.frequency }} - Started: {{ habit.startDate | date:
+              'shortDate' }}
+            </p>
+            <div
+              [ngClass]="isCompletedToday(habit) ? 'line-through text-gray-400' : 'text-indigo-600 text-sm mt-1'"
+            >
+              Current streak: {{ habit.streak }} days
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-row items-center justify-end gap-x-2 sm:ml-4">
+          <button
+            class="px-3 py-1 btn-secondary"
+            (click)="openUpdateModel(habit)"
+          >
+            Update
+          </button>
+          <button
+            (click)="deleteHabit(habit.id)"
+            class="px-3 py-1 bg-red-600 text-white rounded text-sm"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+      }
+    </div>
+    <div class="w-full space-y-6">
+      <div class="bg-white p-6 rounded-xl shadow">
+        <h2 class="text-lg font-semibold mb-4 text-gray-800">
+          Completion History
+        </h2>
+        <app-calender-view
+          [completions]="completions"
+          [streaks]="streakDates"
+        ></app-calender-view>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow">
+        <app-slider class="w-full"></app-slider>
+      </div>
+    </div>
+  </div>
+</div>
+<app-model-view [show]="showUpdateModel" (close)="onCloseUpdateModel()">
+  <app-update-habit [habit]="selectedHabitForUpdate"></app-update-habit>
+</app-model-view>
