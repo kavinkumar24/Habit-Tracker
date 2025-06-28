@@ -10,7 +10,6 @@ import { Spinner } from "../../shared/components/spinner/spinner";
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink, Spinner],
   templateUrl: './register.html',
-  styleUrl: './register.css'
 })
 export class Register implements OnInit{
   registerForm!: FormGroup;

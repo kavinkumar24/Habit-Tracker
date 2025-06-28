@@ -5,7 +5,6 @@ import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
   selector: 'app-calender-view',
   imports: [CommonModule],
   templateUrl: './calender-view.html',
-  styleUrl: './calender-view.css'
 })
 export class CalenderView implements OnChanges {
   @Input() completions: string[] = [];
@@ -25,33 +24,54 @@ export class CalenderView implements OnChanges {
   }
 
   generateCalendar() {
-  const completions = Array.isArray(this.completions) ? this.completions : [];
-  const streaks = Array.isArray(this.streaks) ? this.streaks : [];
+    const toLocalDateString = (date: string) => {
+      const d = new Date(date);
+      return `${d.getFullYear()}-${(d.getMonth() + 1)
+        .toString()
+        .padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
+    };
 
-  const firstDay = new Date(this.currentYear, this.currentMonth, 1);
-  const startDay = firstDay.getDay();
-  const daysInMonth = new Date(this.currentYear, this.currentMonth + 1, 0).getDate();
-  const daysArray = [];
+    const completions = Array.isArray(this.completions)
+      ? this.completions.map(toLocalDateString)
+      : [];
+    const streaks = Array.isArray(this.streaks)
+      ? this.streaks.map(toLocalDateString)
+      : [];
 
-  for (let i = 1; i <= daysInMonth; i++) {
-    const dateStr = new Date(this.currentYear, this.currentMonth, i).toISOString().split('T')[0];
-    daysArray.push({
-      day: i,
-      completed: completions.includes(dateStr),
-      streak: streaks.includes(dateStr),
-    });
+    const firstDay = new Date(this.currentYear, this.currentMonth, 1);
+    const startDay = firstDay.getDay();
+    const daysInMonth = new Date(
+      this.currentYear,
+      this.currentMonth + 1,
+      0
+    ).getDate();
+    const daysArray = [];
+
+    for (let i = 1; i <= daysInMonth; i++) {
+      const d = new Date(this.currentYear, this.currentMonth, i);
+      const dateStr = `${d.getFullYear()}-${(d.getMonth() + 1)
+        .toString()
+        .padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
+      daysArray.push({
+        day: i,
+        completed: completions.includes(dateStr),
+        streak: streaks.includes(dateStr),
+      });
+    }
+
+    const padded = Array(startDay).fill(null).concat(daysArray);
+    while (padded.length % 7 !== 0) padded.push(null);
+    this.weeks = [];
+    for (let i = 0; i < padded.length; i += 7) {
+      this.weeks.push(padded.slice(i, i + 7));
+    }
   }
-
-  const padded = Array(startDay).fill(null).concat(daysArray);
-  while (padded.length % 7 !== 0) padded.push(null);
-  this.weeks = [];
-  for (let i = 0; i < padded.length; i += 7) {
-    this.weeks.push(padded.slice(i, i + 7));
-  }
-}
 
   get monthName(): string {
-    return new Date(this.currentYear, this.currentMonth).toLocaleString('default', { month: 'long' });
+    return new Date(this.currentYear, this.currentMonth).toLocaleString(
+      'default',
+      { month: 'long' }
+    );
   }
 
   get year(): number {

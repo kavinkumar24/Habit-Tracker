@@ -7,7 +7,7 @@
     <div class="flex items-center gap-4">
       <button
         (click)="showCreateForm = !showCreateForm"
-        class="px-6 py-2 bg-violet-600 text-white rounded-full font-semibold shadow hover:bg-violet-700 transition"
+        class="px-6 py-2 btn-primary rounded-full"
       >
         @if (showCreateForm) { Cancel } @else { + Create Habit }
       </button>
@@ -56,11 +56,21 @@
           </div>
         </div>
         <div
-          class="bg-white p-4 rounded-xl shadow flex flex-col items-center min-w-[90px]"
+          class="bg-amber-300 p-4 rounded-xl shadow flex flex-col items-center min-w-[90px]"
         >
           <div class="text-gray-500 text-xs">Streaks</div>
-          <div class="text-lg font-bold text-gray-800">
-            {{ summary.activeStreaks }}
+          <div class="flex items-center gap-2">
+            <img
+              [ngSrc]="'assets/images/fire.webp'"
+              width="24"
+              height="24"
+              alt="Streak"
+              class="inline-block align-middle"
+              style="vertical-align: middle"
+            />
+            <span class="text-lg font-bold text-gray-800">
+              {{ getOverallStreak() }}
+            </span>
           </div>
         </div>
       </div>
@@ -88,6 +98,13 @@
         >
           Weekly
         </button>
+        <button
+          (click)="selectedCategory = 'custom'"
+          [ngClass]="selectedCategory === 'custom' ? 'border-indigo-600 text-indigo-600' : 'text-gray-600'"
+          class="pb-2 border-b-2 font-semibold whitespace-nowrap"
+        >
+          Custom
+        </button>
       </div>
       @if (filteredHabits.length === 0) {
       <div class="text-center text-gray-500 py-8 text-lg">No habit found.</div>
@@ -114,12 +131,12 @@
           </span>
           <button
             (click)="toggleComplete(habit)"
-            [disabled]="isFutureHabit(habit)"
+            [disabled]="isFutureHabit(habit) || (habit.frequency === 'custom' && !canCompleteCustomHabit(habit))"
             class="w-8 h-8 flex items-center justify-center rounded-full border-2 transition-colors duration-300 focus:outline-none flex-shrink-0"
             [ngClass]="[
-          isCompletedToday(habit) ? 'bg-violet-600 border-violet-600 text-white' : 'bg-white border-gray-400 text-gray-400',
-          isFutureHabit(habit) ? 'opacity-50 cursor-not-allowed' : ''
-        ]"
+    isCompletedToday(habit) ? 'bg-violet-600 border-violet-600 text-white' : 'bg-white border-gray-400 text-gray-400',
+    (isFutureHabit(habit) || (habit.frequency === 'custom' && !canCompleteCustomHabit(habit))) ? 'opacity-50 cursor-not-allowed' : ''
+  ]"
             aria-label="Toggle habit completion"
             [attr.aria-pressed]="isCompletedToday(habit)"
           >
@@ -171,7 +188,7 @@
             Update
           </button>
           <button
-            (click)="deleteHabit(habit.id)"
+            (click)="openDeleteModel(habit.id)"
             class="px-3 py-1 bg-red-600 text-white rounded text-sm"
           >
             Delete
@@ -190,12 +207,26 @@
           [streaks]="streakDates"
         ></app-calender-view>
       </div>
-      <div class="bg-white p-6 rounded-xl shadow">
+      <div class="bg-white p-3 md:p-6 rounded-lg md:rounded-xl shadow w-full">
         <app-slider class="w-full"></app-slider>
       </div>
     </div>
   </div>
 </div>
 <app-model-view [show]="showUpdateModel" (close)="onCloseUpdateModel()">
-  <app-update-habit [habit]="selectedHabitForUpdate"></app-update-habit>
+  <app-update-habit
+    [habit]="selectedHabitForUpdate"
+    (close)="onCloseUpdateModel()"
+  ></app-update-habit>
+</app-model-view>
+
+<app-model-view [show]="showDelete" (close)="onCloseDeleteModel()">
+  <h2>Are you sure you want to delete the habit?</h2>
+  <br />
+  <button
+    class="btn-primary bg-red-500 hover:bg-red-600"
+    (click)="deleteHabit(selectedHabitForDelete)"
+  >
+    Confirm
+  </button>
 </app-model-view>

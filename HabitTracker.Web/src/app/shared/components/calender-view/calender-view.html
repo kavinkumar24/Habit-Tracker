@@ -20,8 +20,7 @@
             class="w-8 h-8 mx-auto flex items-center justify-center rounded-full"
             [ngClass]="{
               'bg-green-500 text-white': day.completed,
-              'bg-orange-400 text-white': !day.completed && day.streak,
-              'bg-gray-300 text-gray-600': !day.completed && !day.streak
+              'bg-gray-200 text-gray-600': !day.completed && !day.streak
             }"
           >
             {{ day.day }}

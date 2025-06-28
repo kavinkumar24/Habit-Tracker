@@ -10,7 +10,6 @@ import {
   selector: 'app-add-habit',
   imports: [ReactiveFormsModule],
   templateUrl: './add-habit.html',
-  styleUrl: './add-habit.css',
 })
 export class AddHabit {
   @Output() habitCreated = new EventEmitter<any>();

@@ -4,14 +4,14 @@
       <h2 class="text-3xl font-bold text-violet-600 mb-8">Sign in to your account</h2>
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
         <div class="mb-6">
-          <label class="block text-gray-700 mb-2" for="email">Email</label>
+          <label class="block text-gray-700 mb-2" for="email">Email or username</label>
           <input
             id="email"
             type="email"
             formControlName="emailorUserName"
             class="form-input"
             [class.border-red-500]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
-            placeholder="you@example.com"
+            placeholder="you@example.com/username"
           />
           @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
             <div class="error-msg">

@@ -7,7 +7,6 @@ import { Component } from '@angular/core';
   standalone: true,
   imports: [CommonModule], 
   templateUrl: './slider.html',
-  styleUrls: ['./slider.css']
 })
 export class Slider {
   currentSlide = 0;
@@ -23,7 +22,7 @@ export class Slider {
       title: 'Stay Consistent',
       description: 'Track your daily habits and build a better you.',
       button: 'Start Now',
-      image: 'assets/images/slide-img.webp'
+      image: 'assets/images/slide-img2.webp'
     },
     {
       title: 'Visualize Progress',

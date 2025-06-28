@@ -6,7 +6,6 @@ import { Sidebar } from "../sidebar/sidebar";
   selector: 'app-layout-component',
   imports: [RouterModule, Sidebar],
   templateUrl: './layout-component.html',
-  styleUrl: './layout-component.css'
 })
 export class LayoutComponent {
 

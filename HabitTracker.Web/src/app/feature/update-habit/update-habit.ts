@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { HabitService } from '../../core/services/habit.service';
 import { Router } from '@angular/router';
 import {
@@ -8,22 +8,23 @@ import {
   ReactiveFormsModule,
   FormsModule,
 } from '@angular/forms';
+import { SnackbarService } from '../../core/services/snackbar.service';
 
 @Component({
   selector: 'app-update-habit',
   templateUrl: './update-habit.html',
-  styleUrl: './update-habit.css',
   imports: [ReactiveFormsModule, FormsModule],
 })
 export class UpdateHabitComponent implements OnChanges {
   @Input() habit: any;
+  @Output() close = new EventEmitter<void>();
 
   habitForm: FormGroup;
 
   constructor(
     private habitService: HabitService,
-    private router: Router,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private snackBar: SnackbarService
   ) {
     this.habitForm = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(50)]],
@@ -67,18 +68,41 @@ export class UpdateHabitComponent implements OnChanges {
   updateHabit() {
     if (this.habitForm.invalid) return;
 
-    const payload = {
-      ...this.habit,
-      ...this.habitForm.getRawValue(),
-      customFrequency:
-        this.habitForm.get('frequency')?.value === 'custom'
-          ? this.habitForm.get('customFrequency')?.value
-          : null,
-    };
+    const payload: any = {};
+    const formValue = this.habitForm.getRawValue();
+
+    Object.keys(formValue).forEach((key) => {
+      console.log(
+        `Comparing key: ${key}, formValue: ${formValue[key]}, habit: ${this.habit[key]}`
+      );
+
+      if (key === 'customFrequency') {
+        if (
+          formValue['frequency'] === 'custom' &&
+          formValue[key] !== this.habit[key]
+        ) {
+          payload[key] = formValue[key];
+        }
+        return;
+      }
+
+      if (key === 'startDate' && formValue[key] !== this.habit[key]) {
+        payload[key] = new Date(formValue[key]).toISOString();
+        return;
+      }
+
+      if (formValue[key] !== this.habit[key]) {
+        payload[key] = this.habit[key];
+      }
+    });
+
+    console.log('Update payload:', payload);
 
     this.habitService.updateHabit(this.habit.id, payload).subscribe({
-      next: () => {
-        this.router.navigate(['/dashboard']);
+      next: (res) => {
+        console.log(res);
+        this.snackBar.showSuccess("Habit updated");
+        this.close.emit();
       },
       error: (err) => {
         console.error('Update failed', err);

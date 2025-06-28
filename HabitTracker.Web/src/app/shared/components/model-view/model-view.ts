@@ -5,7 +5,6 @@ import { CircleXIcon, LucideAngularModule } from 'lucide-angular';
   selector: 'app-model-view',
   imports: [LucideAngularModule],
   templateUrl: './model-view.html',
-  styleUrl: './model-view.css'
 })
 export class ModelView {
 

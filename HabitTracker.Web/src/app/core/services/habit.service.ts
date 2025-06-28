@@ -36,15 +36,6 @@ export class HabitService {
     return this.http.put(`${this.baseUrl}/${habitId}`, data);
   }
 
-  removeCompletion(habitId: string, dateCompleted: string): Observable<any> {
-    const body = { habitId, dateCompleted };
-    return this.http.request(
-      'delete',
-      `${environment.apiUrl}/HabitCompletion/remove`,
-      { body }
-    );
-  }
-
   createHabit(habit:any):Observable<any>{
     return this.http.post(`${this.baseUrl}`, habit);
   }

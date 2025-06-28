@@ -7,7 +7,6 @@ import { HomeIcon, LogOutIcon, LucideAngularModule, MenuIcon } from 'lucide-angu
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.html',
-  styleUrls: ['./sidebar.css'],
   standalone: true,
   imports: [LucideAngularModule, CommonModule]
 })
