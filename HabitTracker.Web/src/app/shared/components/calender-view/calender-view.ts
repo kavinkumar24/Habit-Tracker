@@ -1,14 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { ArrowLeftCircleIcon, ArrowRightCircleIcon, LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-calender-view',
-  imports: [CommonModule],
+  imports: [CommonModule, LucideAngularModule],
   templateUrl: './calender-view.html',
 })
 export class CalenderView implements OnChanges {
+  readonly prevIcon = ArrowLeftCircleIcon;
+  readonly nextIcon = ArrowRightCircleIcon;
   @Input() completions: string[] = [];
-  @Input() streaks: string[] = [];
   weeks: any[][] = [];
   currentMonth: number = new Date().getMonth();
   currentYear: number = new Date().getFullYear();
@@ -18,7 +20,7 @@ export class CalenderView implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['completions'] || changes['streaks']) {
+    if (changes['completions']) {
       this.generateCalendar();
     }
   }
@@ -33,9 +35,6 @@ export class CalenderView implements OnChanges {
 
     const completions = Array.isArray(this.completions)
       ? this.completions.map(toLocalDateString)
-      : [];
-    const streaks = Array.isArray(this.streaks)
-      ? this.streaks.map(toLocalDateString)
       : [];
 
     const firstDay = new Date(this.currentYear, this.currentMonth, 1);
@@ -55,7 +54,6 @@ export class CalenderView implements OnChanges {
       daysArray.push({
         day: i,
         completed: completions.includes(dateStr),
-        streak: streaks.includes(dateStr),
       });
     }
 

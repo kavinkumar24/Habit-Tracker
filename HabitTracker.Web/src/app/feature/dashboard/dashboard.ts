@@ -4,16 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { Slider } from '../../shared/components/slider/slider';
 import { HabitService } from '../../core/services/habit.service';
 import { CalenderView } from '../../shared/components/calender-view/calender-view';
-import {
-  Check,
-  Circle,
-  LucideAngularModule,
-} from 'lucide-angular';
+import { Check, Circle, LucideAngularModule } from 'lucide-angular';
 import { HabitCompletionService } from '../../core/services/habit.completion.service';
 import { ModelView } from '../../shared/components/model-view/model-view';
 import { AddHabit } from '../add-habit/add-habit';
 import { UpdateHabitComponent } from '../update-habit/update-habit';
 import { SnackbarService } from '../../core/services/snackbar.service';
+import { UserService } from '../../core/services/user.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -35,7 +32,6 @@ export class Dashboard implements OnInit {
   readonly circleIcon = Circle;
   summary = {
     totalHabits: 0,
-    activeStreaks: 0,
   };
 
   selectedCategory = 'daily';
@@ -63,12 +59,12 @@ export class Dashboard implements OnInit {
 
   habits: any[] = [];
   completions: any[] = [];
-  streakDates: string[] = [];
 
   constructor(
     private habitService: HabitService,
     private habitCompletionService: HabitCompletionService,
-    private snackBar: SnackbarService
+    private snackBar: SnackbarService,
+    private userService: UserService
   ) {}
   ngOnInit(): void {
     this.loadHabits();
@@ -84,13 +80,10 @@ export class Dashboard implements OnInit {
   }
 
   loadHabits() {
-    this.habitService.getHabits().subscribe({
+    this.userService.getHabits().subscribe({
       next: (res) => {
         this.habits = res?.data?.habits;
-        this.summary.totalHabits = this.habits.length;
-        this.summary.activeStreaks = this.areAllHabitsCompletedToday()
-          ? this.habits.reduce((sum, h) => sum + (h.streakCount || 0), 0)
-          : 0;
+        this.getTotalHabitCount();
         if (this.habits.length > 0) {
           this.selectHabit(this.habits[0]);
         }
@@ -99,6 +92,16 @@ export class Dashboard implements OnInit {
     });
   }
 
+  getTotalHabitCount() {
+    this.habitService.getTotalHabits().subscribe({
+      next: (totalRes) => {
+        this.summary.totalHabits = totalRes.data;
+      },
+      error: (err) => {
+        console.error('Failed to fetch total habits:', err);
+      },
+    });
+  }
   deleteHabit(habitId: string) {
     this.habitService.deleteHabit(habitId).subscribe({
       next: () => {
@@ -158,13 +161,6 @@ export class Dashboard implements OnInit {
     }
   }
 
-  newHabit = {
-    title: '',
-    description: '',
-    frequency: 'daily',
-    startDate: new Date().toISOString().split('T')[0],
-  };
-
   addHabit(habit: any) {
     const user = localStorage.getItem('user');
     const userId = user ? JSON.parse(user).id : null;
@@ -186,7 +182,7 @@ export class Dashboard implements OnInit {
     };
 
     this.habitService.createHabit(payload).subscribe({
-      next: (res) => {
+      next: () => {
         this.snackBar.showSuccess('Habit created successfully');
         this.loadHabits();
         this.showCreateForm = false;
@@ -197,39 +193,52 @@ export class Dashboard implements OnInit {
     });
   }
 
-  getOverallStreak(): number {
-    if (!this.habits.length) return 0;
+  //  getOverallStreak(): number {
+  //   if (!this.habits.length) return 0;
 
-    const dailyHabits = this.habits.filter(
-      (h) => h.frequency.toLowerCase() === 'daily'
-    );
-    if (!dailyHabits.length) return 0;
+  //   const dailyHabits = this.habits.filter(
+  //     (h) => h.frequency.toLowerCase() === 'daily'
+  //   );
+  //   if (!dailyHabits.length) return 0;
 
-    let streak = 0;
-    let dayOffset = 0;
+  //   let streak = 0;
+  //   let dayOffset = 0;
 
-    while (true) {
-      const date = new Date();
-      date.setDate(date.getDate() - dayOffset);
-      const dateStr = date.toISOString().slice(0, 10);
+  //   while (true) {
+  //     const date = new Date();
+  //     date.setDate(date.getDate() - dayOffset);
+  //     const dateStr = date.toISOString().slice(0, 10);
+  //     const todayStr = new Date().toISOString().slice(0, 10);
+  //     if (dateStr > todayStr) break;
 
-      const allCompleted = dailyHabits.every((habit) =>
-        (habit.completions || []).some(
-          (c: any) =>
-            c.dateCompleted && c.dateCompleted.slice(0, 10) === dateStr
-        )
-      );
+  //     // Only consider habits that have started on or before this date
+  //     const habitsStarted = dailyHabits.filter(habit => {
+  //       if (!habit.startDate) return true;
+  //       return habit.startDate.slice(0, 10) <= dateStr;
+  //     });
 
-      if (allCompleted) {
-        streak++;
-        dayOffset++;
-      } else {
-        break;
-      }
-    }
+  //     if (!habitsStarted.length) {
+  //       dayOffset++;
+  //       continue;
+  //     }
 
-    return streak;
-  }
+  //     const allCompleted = habitsStarted.every((habit) =>
+  //       (habit.completions || []).some(
+  //         (c: any) =>
+  //           c.dateCompleted && c.dateCompleted.slice(0, 10) === dateStr
+  //       )
+  //     );
+
+  //     if (allCompleted) {
+  //       streak++;
+  //       dayOffset++;
+  //     } else {
+  //       break;
+  //     }
+  //   }
+
+  //   return streak;
+  // }
 
   isFutureHabit(habit: any): boolean {
     if (!habit.startDate) return false;
@@ -240,34 +249,9 @@ export class Dashboard implements OnInit {
     return habitDate > today;
   }
 
-  areAllHabitsCompletedToday(): boolean {
-    if (!this.habits.length) return false;
-    const today = new Date().toISOString().slice(0, 10);
-    return this.habits.every((habit) =>
-      (habit.completions || []).some(
-        (c: any) => c.dateCompleted && c.dateCompleted.slice(0, 10) === today
-      )
-    );
-  }
-
-  isCompletedThisWeek(habit: any): boolean {
-    if (habit.frequency !== 'weekly' || !habit.completions) return false;
-    const now = new Date();
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - now.getDay());
-    startOfWeek.setHours(0, 0, 0, 0);
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
-    endOfWeek.setHours(23, 59, 59, 999);
-
-    return habit.completions.some((c: any) => {
-      const completedDate = new Date(c.dateCompleted);
-      return completedDate >= startOfWeek && completedDate <= endOfWeek;
-    });
-  }
-
   canCompleteCustomHabit(habit: any): boolean {
-    if (habit.frequency !== 'custom' || !habit.customFrequency) return true;
+    if (habit.frequency.toLowerCase() !== 'custom' || !habit.customFrequency)
+      return true;
 
     const completions = habit.completions || [];
     if (completions.length === 0) return true;
@@ -282,6 +266,17 @@ export class Dashboard implements OnInit {
     nextAllowedDate.setDate(nextAllowedDate.getDate() + habit.customFrequency);
 
     return today >= nextAllowedDate;
+  }
+
+  onHabitUpdated(updatedHabit: any) {
+    const idx = this.habits.findIndex((h) => h.id === updatedHabit.id);
+    if (idx !== -1) {
+      this.habits[idx] = { ...this.habits[idx], ...updatedHabit };
+      if (this.selectedHabit?.id === updatedHabit.id) {
+        this.selectedHabit = this.habits[idx];
+      }
+    }
+    this.onCloseUpdateModel();
   }
 
   openUpdateModel(habit: any) {

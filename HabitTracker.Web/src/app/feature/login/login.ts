@@ -41,8 +41,8 @@ export class Login implements OnInit {
       const usernameOrEmail = this.loginForm.value.emailorUserName;
       const password = this.loginForm.value.password;
       const userLogin: UserLogin = {
-        usernameOrEmail: this.loginForm.value.emailorUserName,
-        password: this.loginForm.value.password,
+        usernameOrEmail: usernameOrEmail,
+        password: password,
       };
       this.userService.login(userLogin).subscribe({
         next: (res) => {

@@ -9,14 +9,6 @@ export class HabitService {
 
   constructor(private http: HttpClient) {}
 
-  getHabits(): Observable<{ data: { habits: any[] } }> {
-    const user = localStorage.getItem('user');
-    const userId = user ? JSON.parse(user).id : null;
-    return this.http.get<{ data: { habits: any[] } }>(
-      `${environment.apiUrl}/User/${userId}/habits`
-    );
-  }
-
   markCompleted(habitId: string): Observable<any> {
     const body = {
       habitId,
@@ -38,5 +30,11 @@ export class HabitService {
 
   createHabit(habit:any):Observable<any>{
     return this.http.post(`${this.baseUrl}`, habit);
+  }
+
+  getTotalHabits(): Observable<any> {
+    const user = localStorage.getItem('user');
+    const userId = user ? JSON.parse(user).id : null;
+    return this.http.get(`${this.baseUrl}/totalCount/${userId}`);
   }
 }

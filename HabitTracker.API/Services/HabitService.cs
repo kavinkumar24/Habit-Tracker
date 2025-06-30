@@ -169,10 +169,17 @@ public class HabitService : IHabitService
         return await _habitRepository.Update(habitId, existing);
     }
 
+    public async Task<int> GetTotalHabitsByUserIdAsync(Guid userId)
+    {
+        if (userId == Guid.Empty)
+        {
+            throw new ArgumentNullException(nameof(userId), "User ID cannot be empty");
+        }
+
+        var habits = await _habitRepository.GetTotalHabitsCountAsync(userId);
+        return habits;
+    }
 
 
 }
 
-public class AddHabitAsync
-{
-}

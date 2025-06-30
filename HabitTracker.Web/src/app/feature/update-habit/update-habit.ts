@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import { HabitService } from '../../core/services/habit.service';
 import { Router } from '@angular/router';
 import {
@@ -18,6 +25,7 @@ import { SnackbarService } from '../../core/services/snackbar.service';
 export class UpdateHabitComponent implements OnChanges {
   @Input() habit: any;
   @Output() close = new EventEmitter<void>();
+  @Output() habitUpdated = new EventEmitter<any>();
 
   habitForm: FormGroup;
 
@@ -72,22 +80,20 @@ export class UpdateHabitComponent implements OnChanges {
     const formValue = this.habitForm.getRawValue();
 
     Object.keys(formValue).forEach((key) => {
-      console.log(
-        `Comparing key: ${key}, formValue: ${formValue[key]}, habit: ${this.habit[key]}`
-      );
-
       if (key === 'customFrequency') {
         if (
-          formValue['frequency'] === 'custom' &&
-          formValue[key] !== this.habit[key]
+          formValue['frequency'] === 'Custom'
         ) {
-          payload[key] = formValue[key];
+          payload[key] = this.habit[key];
         }
         return;
       }
 
-      if (key === 'startDate' && formValue[key] !== this.habit[key]) {
-        payload[key] = new Date(formValue[key]).toISOString();
+      if (key === 'startDate') {
+        
+        const dateObj = new Date(this.habit[key]);
+        dateObj.setHours(0, 0, 0, 0);
+        payload[key] = dateObj.toISOString();
         return;
       }
 
@@ -101,7 +107,8 @@ export class UpdateHabitComponent implements OnChanges {
     this.habitService.updateHabit(this.habit.id, payload).subscribe({
       next: (res) => {
         console.log(res);
-        this.snackBar.showSuccess("Habit updated");
+        this.snackBar.showSuccess('Habit updated');
+        this.habitUpdated.emit({ ...this.habit, ...payload }); 
         this.close.emit();
       },
       error: (err) => {

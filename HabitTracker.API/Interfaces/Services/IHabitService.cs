@@ -12,4 +12,5 @@ public interface IHabitService
     Task DeleteHabitAsync(Guid habitId);
     Task<double> GetCompletionPercentageForDateAsync(Guid userId, DateTime date);
     Task<int> GetStreakCountAsync(Guid habitId);
+    Task<int> GetTotalHabitsByUserIdAsync(Guid userId);
 }

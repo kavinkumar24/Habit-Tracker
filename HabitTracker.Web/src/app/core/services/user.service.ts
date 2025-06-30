@@ -33,4 +33,9 @@ export class UserService {
   getUserByUsername(username: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/username/${username}`);
   }
+  getHabits(): Observable<any> {
+    const user = localStorage.getItem('user');
+    const userId = user ? JSON.parse(user).id : null;
+    return this.http.get(`${this.apiUrl}/${userId}/habits`);
+  }
 }

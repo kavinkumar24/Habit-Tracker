@@ -48,14 +48,14 @@
       </div>
       <div class="flex gap-4">
         <div
-          class="bg-white p-4 rounded-xl shadow flex flex-col items-center min-w-[90px]"
+          class="bg-violet-200 p-4 rounded-xl shadow flex flex-col items-center min-w-[90px]"
         >
           <div class="text-gray-500 text-xs">Total Habits</div>
           <div class="text-lg font-bold text-gray-800">
             {{ summary.totalHabits }}
           </div>
         </div>
-        <div
+        <!-- <div
           class="bg-amber-300 p-4 rounded-xl shadow flex flex-col items-center min-w-[90px]"
         >
           <div class="text-gray-500 text-xs">Streaks</div>
@@ -69,10 +69,10 @@
               style="vertical-align: middle"
             />
             <span class="text-lg font-bold text-gray-800">
-              {{ getOverallStreak() }}
+              {{ summary.activeStreaks }}
             </span>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -131,7 +131,7 @@
           </span>
           <button
             (click)="toggleComplete(habit)"
-            [disabled]="isFutureHabit(habit) || (habit.frequency === 'custom' && !canCompleteCustomHabit(habit))"
+            [disabled]="isFutureHabit(habit) || (habit.frequency === 'Custom' && !canCompleteCustomHabit(habit))"
             class="w-8 h-8 flex items-center justify-center rounded-full border-2 transition-colors duration-300 focus:outline-none flex-shrink-0"
             [ngClass]="[
     isCompletedToday(habit) ? 'bg-violet-600 border-violet-600 text-white' : 'bg-white border-gray-400 text-gray-400',
@@ -170,8 +170,9 @@
               [ngClass]="isCompletedToday(habit) ? 'line-through text-gray-400' : 'text-gray-600'"
               class="text-xs mt-1"
             >
-              {{ habit.frequency }} - Started: {{ habit.startDate | date:
-              'shortDate' }}
+              {{ habit.frequency === 'Custom' ? ('Custom - Every ' +
+              habit.customFrequency + ' days') : habit.frequency | titlecase }}
+              - Started: {{ habit.startDate | date: 'shortDate' }}
             </p>
             <div
               [ngClass]="isCompletedToday(habit) ? 'line-through text-gray-400' : 'text-indigo-600 text-sm mt-1'"
@@ -204,7 +205,6 @@
         </h2>
         <app-calender-view
           [completions]="completions"
-          [streaks]="streakDates"
         ></app-calender-view>
       </div>
       <div class="bg-white p-3 md:p-6 rounded-lg md:rounded-xl shadow w-full">
@@ -217,6 +217,7 @@
   <app-update-habit
     [habit]="selectedHabitForUpdate"
     (close)="onCloseUpdateModel()"
+    (habitUpdated)="onHabitUpdated($event)"
   ></app-update-habit>
 </app-model-view>
 

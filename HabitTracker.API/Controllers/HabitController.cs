@@ -24,7 +24,7 @@ public class HabitController : ControllerBase
         {
             return BadRequest(ApiResponse<string>.ErrorResponse("Habit data is required."));
         }
-         var createdHabit = await _habitService.AddHabitAsync(habit);
+        var createdHabit = await _habitService.AddHabitAsync(habit);
         if (createdHabit == null)
         {
             return BadRequest(ApiResponse<string>.ErrorResponse("Habit creation failed."));
@@ -111,6 +111,17 @@ public class HabitController : ControllerBase
         var streakCount = await _habitService.GetStreakCountAsync(habitId);
 
         return Ok(ApiResponse<int>.SuccessResponse(streakCount, "Streak count retrieved successfully."));
+    }
+
+    [HttpGet("totalCount/{userId}")]
+    public async Task<IActionResult> GetTotalHabitsCount(Guid userId)
+    {
+        if (userId == Guid.Empty)
+        {
+            return BadRequest(ApiResponse<string>.ErrorResponse("Invalid user ID."));
+        }
+        var totalCount = await _habitService.GetTotalHabitsByUserIdAsync(userId);
+        return Ok(ApiResponse<int>.SuccessResponse(totalCount, "Total habits count retrieved successfully."));
     }
 
 }
